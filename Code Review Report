@@ -1,0 +1,11 @@
+# Code Review Report - Static Verification of C++ Code
+
+| Line No. | Defect Type | Why Is It Important? | Proposed Fix | Severity |
+| :--- | :--- | :--- | :--- | :--- |
+| **Line 57** | Assignment instead of Equality (`=`) | Using `=` assigns the value instead of comparing it, leading to unintended logic flow where `id` is reassigned and the condition evaluates to true incorrectly. | Change `=` to `==` (`if (monsters[i]->id == id)`). | **High** |
+| **Line 72** | Array Out-of-Bounds | Using `<=` instead of `<` in `i <= monsterCount` causes the loop to access `monsters[monsterCount]`, resulting in a segmentation fault. | Change loop condition to `i < monsterCount`. | **High** |
+| **Line 86** | Uninitialized Variable | Variable `sum` is used without initialization in `averageAttack()`, leading to undefined behavior and garbage return values. | Initialize `double sum = 0.0;`. | **Medium** |
+| **Line 92** | Dangling Pointer / Memory Management | `defeatMonster()` deletes the monster object, but the pointer remains inside the `monsters` array, creating a dangling pointer and risky state. | Remove/nullify the array entry or shift elements appropriately after deletion. | **High** |
+| **Line 104** | Missing Return Statement | Function `playerRank()` lacks a return statement for scores $\le 100$, causing undefined behavior when executed for lower scores. | Add an `else` branch returning a default rank (e.g., `return 3;`). | **Medium** |
+| **Line 109** | Buffer Overflow Risk | Allocating a fixed buffer of `10` characters with `new char[10]` and reading via `std::cin >> name` can easily overflow if the user inputs a longer boss name. | Use `std::string` instead of raw `char*` buffers to handle dynamic string input safely. | **High** |
+| **Line 126** | Shallow Copy / Rule of Three Violation | `Game copy = game;` performs a shallow copy of the `monsters` pointer array, causing both objects to delete the same pointers, leading to a double-free crash. | Implement a proper copy constructor and assignment operator (Rule of Three/Five) or use `std::vector<std::unique_ptr<Monster>>`. | **Critical** |
